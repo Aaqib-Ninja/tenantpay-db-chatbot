@@ -1,0 +1,31 @@
+version: "3.0"
+nlu:
+  - intent: get_information
+    examples: |
+      - Show me all buildings
+      - Get tenant details
+      - What are the landlord accounts?
+
+  - intent: filter_data
+    examples: |
+      - Show all tenants created last week
+      - Find landlords added in the last month
+      - Get buildings where the size is greater than 1000 sqft
+  
+  - intent: get_payment
+    examples: |
+      - What is the payment of the tenant John Doe?
+      - Show me the payment of tenant with ID 123.
+      - How much did tenant Mary Smith pay?
+
+  - intent: get_landlord_creation_date
+    examples: |
+      - When was the landlord John Doe created?
+      - What is the creation date of landlord with ID 456?
+      - Show me the account creation date of landlord Mary Smith.
+
+  - intent: get_table_info
+    examples: |
+      - Show me all tenants.
+      - List all landlords.
+      - What are the payments recorded?

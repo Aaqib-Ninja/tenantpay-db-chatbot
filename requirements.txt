@@ -1,0 +1,7 @@
+# rasa 
+# transformers 
+# torch 
+# sqlalchemy 
+
+# Jupyter Notebooks
+notebook
