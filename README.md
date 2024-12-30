@@ -1,6 +1,18 @@
 # tenantpay-db-chatbot
 
 
+# Ollama sqlcoder
+
+[docker](https://hub.docker.com/r/ollama/ollama)
+
+docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+
+
+
+
+***
+***
+***
 ### Install Python version 3.8
 **Note:** Rasa only works with depreciated version python i.e. <= 3.8
 
