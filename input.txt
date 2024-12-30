@@ -1,0 +1,1 @@
+When was Bob's payment last updated and what is Alice's contact info and what is the status of Alice's payment?
