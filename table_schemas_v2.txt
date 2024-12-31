@@ -1,0 +1,43 @@
+ImportedBankTransaction
+id: bigint (primary, auto-increment)
+importedPaymentFileId: bigint (nullable)
+transactionId: bigint (nullable)
+importDate: date
+payNumber: varchar(191)
+amount: double
+bankAccount: relation (many-to-one with BankAccount)
+
+
+Resident
+residentId: bigint (primary, auto-increment)
+companyId: bigint
+buildingId: bigint
+hashId: varchar(512)
+rentAmount: double (nullable)
+building: relation (many-to-one with Building)
+
+
+Tenant
+tenantId: bigint (primary, auto-increment)
+isIdentityVerified: boolean (default: false)
+isIndividualAccount: boolean (default: true)
+isNewProperty: boolean (default: true)
+user: relation (one-to-one with User)
+
+
+Transaction
+transactionId: bigint (primary, auto-increment)
+companyId: bigint
+amountPaid: double
+processingFee: double
+transactionDate: date
+resident: relation (many-to-one with Resident)
+
+
+User
+userId: bigint (primary, auto-increment)
+firstName: varchar(191)
+lastName: varchar(191)
+email: varchar(191, unique)
+isActive: boolean (default: true)
+
