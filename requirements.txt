@@ -1,7 +1,5 @@
-# rasa 
-# transformers 
-# torch 
-# sqlalchemy 
+openai
+python-dotenv==1.0.1
 
-# Jupyter Notebooks
-notebook
+sqlalchemy
+pymysql
