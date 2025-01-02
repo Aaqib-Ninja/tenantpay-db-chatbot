@@ -27,6 +27,13 @@ processed_sql = extract_sql_statement(raw_gpt_output)
 print("processed_sql")
 print(processed_sql)
 
+
+# processed_sql="""
+# SELECT r.firstName, r.lastName
+# FROM residents r
+# WHERE r.unitId IS NOT NULL
+# LIMIT 10;"""
+
 query_output = execute_sql(processed_sql)
 print("query_output")
 print(query_output)

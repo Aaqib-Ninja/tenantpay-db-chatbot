@@ -1,0 +1,185 @@
+CREATE TABLE imported_bank_transactions (
+  id BIGINT PRIMARY KEY, -- Unique ID for each transaction
+  importedPaymentFileId BIGINT, -- ID of the imported payment file
+  transactionId BIGINT, -- ID of the transaction
+  companyId BIGINT, -- ID of the associated company
+  bankAccountId BIGINT, -- ID of the associated bank account
+  buildingId BIGINT, -- ID of the associated building
+  importDate DATE, -- Date of import
+  payNumber VARCHAR(191), -- Payment number
+  amount DOUBLE(12,2), -- Transaction amount
+  traceNumber VARCHAR(191), -- Trace number
+  payeeFromTransaction VARCHAR(191), -- Payee from transaction
+  datePayeePaid DATE, -- Date payee was paid
+  source VARCHAR(191), -- Source of transaction
+  processor VARCHAR(191), -- Processor information
+  isException TINYINT(1) DEFAULT 0, -- Exception flag
+  transactionExceptionId BIGINT, -- ID of transaction exception
+  processingFee DOUBLE(12,6) DEFAULT 0.000000, -- Processing fee
+  processingFeeTax DOUBLE(12,6) DEFAULT 0.000000, -- Tax on processing fee
+  exceptionNote VARCHAR(191), -- Note on exception
+  timestampAdded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of creation
+  timestampUpdated DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of update
+  paymentMethodId BIGINT DEFAULT 6, -- Payment method ID
+  cardCompanyTypeId BIGINT, -- Card company type ID
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE residents (
+  residentId BIGINT PRIMARY KEY, -- Unique ID for each resident
+  companyId BIGINT, -- ID of the associated company
+  buildingId BIGINT, -- ID of the associated building
+  unitId BIGINT, -- ID of the associated unit
+  userId BIGINT, -- ID of the associated user
+  payNumber VARCHAR(191), -- Payment number
+  externalRefId VARCHAR(191), -- External reference ID
+  firstName VARCHAR(191), -- First name of the resident
+  lastName VARCHAR(191), -- Last name of the resident
+  phoneNumber VARCHAR(191), -- Phone number
+  email VARCHAR(191), -- Email address
+  invitationCode VARCHAR(191), -- Invitation code
+  hashId VARCHAR(512), -- Unique hash ID
+  rentAmount DOUBLE(8,2), -- Rent amount
+  leaseStartDate DATE, -- Lease start date
+  leaseEndDate DATE, -- Lease end date
+  note VARCHAR(2000), -- Notes about the resident
+  tpPayeeId BIGINT, -- Third-party payee ID
+  yardiPushed TINYINT(1) DEFAULT 0, -- Yardi push status
+  yardiResidentStatus VARCHAR(15), -- Yardi resident status
+  isActive TINYINT(1) DEFAULT 1, -- Active status
+  addedByUserId BIGINT, -- User ID of who added the record
+  updatedByUserId BIGINT, -- User ID of who updated the record
+  deactivatedByUserId BIGINT, -- User ID of who deactivated the record
+  removedByUserId BIGINT, -- User ID of who removed the record
+  removed TINYINT(1) DEFAULT 0, -- Removal status
+  timestampAdded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Creation timestamp
+  timestampUpdated DATETIME DEFAULT CURRENT_TIMESTAMP, -- Update timestamp
+  disableYardiPush TINYINT(1) DEFAULT 0, -- Disable yardi push flag
+  moveInDate DATE, -- Move-in date
+  moveOutDate DATE, -- Move-out date
+  noticeDate DATE, -- Notice date
+  PRIMARY KEY (residentId)
+);
+
+CREATE TABLE taxes (
+  taxId BIGINT PRIMARY KEY, -- Unique ID for each tax
+  name VARCHAR(191), -- Name of the tax
+  country VARCHAR(191), -- Country associated with the tax
+  province VARCHAR(191), -- Province associated with the tax
+  percentage DOUBLE(8,2), -- Tax percentage
+  isActive TINYINT(1) DEFAULT 1, -- Active status
+  timestampAdded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of creation
+  timestampUpdated DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of update
+  quickbooksTaxCode VARCHAR(191) DEFAULT 'GST' -- QuickBooks tax code
+);
+
+CREATE TABLE tenants (
+  tenantId BIGINT PRIMARY KEY, -- Unique ID for each tenant
+  userId BIGINT UNIQUE, -- ID of the associated user
+  isIdentityVerified TINYINT(1) DEFAULT 0, -- Identity verification flag
+  identityVerifiedAt DATETIME, -- Timestamp of identity verification
+  isIndividualAccount TINYINT(1) DEFAULT 1, -- Indicates account type
+  isNewProperty TINYINT(1) DEFAULT 1, -- Indicates property type
+  occupation VARCHAR(191), -- Occupation of the tenant
+  industry VARCHAR(191), -- Industry of the tenant
+  addedByUserId BIGINT, -- ID of the user who added the tenant
+  approvedByUserId BIGINT, -- ID of the user who approved the tenant
+  updatedByUserId BIGINT, -- ID of the user who updated the tenant
+  removedByUserId BIGINT, -- ID of the user who removed the tenant
+  removed TINYINT(1) DEFAULT 0, -- Removal status
+  timestampApproved DATETIME, -- Timestamp of approval
+  timestampAdded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of creation
+  timestampUpdated DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of update
+  timestampRemoved DATETIME, -- Timestamp of removal
+  PRIMARY KEY (tenantId)
+);
+
+CREATE TABLE units (
+  unitId BIGINT PRIMARY KEY, -- Unique ID for each unit
+  companyId BIGINT, -- ID of the associated company
+  buildingId BIGINT, -- ID of the associated building
+  unitNumber VARCHAR(191), -- Unit number
+  unitName VARCHAR(191), -- Unit name
+  floorNumber VARCHAR(191), -- Floor number
+  externalRefId VARCHAR(191), -- External reference ID
+  rentAmount DOUBLE(8,2), -- Rent amount
+  description VARCHAR(2000), -- Description of the unit
+  isActive TINYINT(1) DEFAULT 1, -- Active status
+  tpUnitId BIGINT UNIQUE, -- Third-party unit ID
+  removed TINYINT(1) DEFAULT 0, -- Removal status
+  addedByUserId BIGINT, -- ID of the user who added the record
+  updatedByUserId BIGINT, -- ID of the user who updated the record
+  deactivatedByUserId BIGINT, -- ID of the user who deactivated the record
+  removedByUserId BIGINT, -- ID of the user who removed the record
+  timestampAdded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of creation
+  timestampUpdated DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of update
+  timestampRemoved DATETIME, -- Timestamp of removal
+  timestampDeactivated DATETIME, -- Timestamp of deactivation
+  area DOUBLE(8,6), -- Area of the unit
+  rentalType VARCHAR(191), -- Type of rental
+  updateHash VARCHAR(255), -- Update hash
+  PRIMARY KEY (unitId)
+);
+
+CREATE TABLE users (
+  userId BIGINT PRIMARY KEY, -- Unique ID for each user
+  firstName VARCHAR(191), -- First name
+  lastName VARCHAR(191), -- Last name
+  phoneNumberExtension VARCHAR(5), -- Phone number extension
+  phoneNumber VARCHAR(191), -- Phone number
+  profilePicturePath VARCHAR(256), -- Path to profile picture
+  email VARCHAR(191) UNIQUE, -- Email address
+  userName VARCHAR(191) UNIQUE, -- Username
+  password VARCHAR(256), -- Password (hashed)
+  accessToken VARCHAR(512), -- Access token
+  notificationEmail VARCHAR(191), -- Notification email
+  langCode VARCHAR(3) DEFAULT 'en', -- Language code
+  tpUserId BIGINT, -- Third-party user ID
+  addressId BIGINT, -- ID of the associated address
+  title VARCHAR(191), -- Title
+  linkedinUrl VARCHAR(256), -- LinkedIn URL
+  addedByUserId BIGINT, -- ID of the user who added the record
+  updatedByUserId BIGINT, -- ID of the user who updated the record
+  isSelfSignup TINYINT(1) DEFAULT 0, -- Self-signup flag
+  isEmailVerified TINYINT(1) DEFAULT 0, -- Email verification flag
+  emailVerifiedAt DATETIME, -- Timestamp of email verification
+  isPhoneVerified TINYINT(1) DEFAULT 0, -- Phone verification flag
+  phoneVerifiedAt DATETIME, -- Timestamp of phone verification
+  timestampLastLogin DATETIME, -- Timestamp of last login
+  timestampLastMfa DATETIME, -- Timestamp of last MFA
+  dateOfBirth DATE, -- Date of birth
+  timestampAdded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of creation
+  timestampUpdated DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of update
+  sendInvoice TINYINT(1) DEFAULT 1, -- Send invoice flag
+  sendYardiEmail TINYINT(1) DEFAULT 1, -- Send Yardi email flag
+  isActive TINYINT(1) DEFAULT 1, -- Active status
+  timestampDeactivated DATETIME, -- Timestamp of deactivation
+  deactivatedByUserId BIGINT, -- ID of the user who deactivated the record
+  PRIMARY KEY (userId)
+);
+
+CREATE TABLE transactions (
+  transactionId BIGINT PRIMARY KEY, -- Unique ID for each transaction
+  companyId BIGINT, -- ID of the associated company
+  bankAccountId BIGINT, -- ID of the associated bank account
+  buildingId BIGINT, -- ID of the associated building
+  residentId BIGINT, -- ID of the associated resident
+  payNumber VARCHAR(191), -- Payment number
+  batchId BIGINT, -- ID of the associated batch
+  processorRefId VARCHAR(512), -- Processor reference ID
+  amountPaid DOUBLE(8,3), -- Amount paid
+  processingFee DOUBLE(12,6) DEFAULT 0.000000, -- Processing fee
+  processingFeeTax DOUBLE(12,6) DEFAULT 0.000000, -- Processing fee tax
+  transferredAmount DOUBLE(8,3) DEFAULT 0.000, -- Transferred amount
+  transactionDate DATE, -- Date of transaction
+  datePayeePaid DATE, -- Date payee was paid
+  payeeFromTransaction VARCHAR(200), -- Payee from transaction
+  tpTransactionId BIGINT UNIQUE, -- Third-party transaction ID
+  removed TINYINT(1) DEFAULT 0, -- Removal status
+  updatedByUserId BIGINT, -- ID of the user who updated the record
+  timestampAdded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of creation
+  timestampUpdated DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of update
+  paymentMethodId BIGINT DEFAULT 6, -- Payment method ID
+  cardCompanyTypeId BIGINT, -- Card company type ID
+  PRIMARY KEY (transactionId)
+);

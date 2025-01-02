@@ -9,6 +9,9 @@ docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 
 
 
+### Google Colab
+[Google Colab Notebook link](https://colab.research.google.com/drive/1McNoxMhGiReSS7XzTj-hwAM0Vl8jRf0D)
+
 
 ***
 ***
