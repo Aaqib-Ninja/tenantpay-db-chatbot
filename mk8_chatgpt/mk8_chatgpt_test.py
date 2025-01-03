@@ -1,6 +1,6 @@
 from mk8_chatgpt_helper import OpenAIUtils
 from mk8_chatgpt_helper import extract_sql_statement, execute_sql
-
+import pandas as pd
 
 # assistant_id="asst_86Ozc971ubLv1TE48XEfLwAd"
 # # thread_id = "thread_iRlqdnjJejbZ96CLGV5Ytx6F"
@@ -28,11 +28,24 @@ from mk8_chatgpt_helper import extract_sql_statement, execute_sql
 # print(processed_sql)
 
 
-processed_sql="""
-SELECT r.firstName, r.lastName
-FROM residents r
-WHERE r.unitId IS NOT NULL
-LIMIT 10;"""
+queries = [
+"""
+    SELECT residentid
+    FROM residents
+    WHERE firstName="John";
+""",
+"""
+    SELECT lastName
+    FROM residents
+    WHERE firstName="John";
+""",
+"""
+    SELECT companyid
+    FROM residents
+    WHERE firstName="John";
+""",
+]
+
 # processed_sql="""
 # SELECT 
 #     t.*,
@@ -43,7 +56,16 @@ LIMIT 10;"""
 #     imported_bank_transactions ibt ON t.transactionId = ibt.transactionId
 # WHERE 
 #     t.transactionId = 250;"""
+query_output_dict_list = []
 
-query_output = execute_sql(processed_sql)
-print("query_output")
-print(query_output)
+for query in queries:
+    headers, data = execute_sql(query)
+    table = [dict(zip(headers, row)) for row in data]
+    query_output_dict_list.extend(table)
+    
+df = pd.DataFrame(query_output_dict_list)
+df = df.astype(str)
+df.fillna("null", inplace=True)
+
+output_file = "query_outputs.xlsx"
+df.to_excel(output_file, index=False)
