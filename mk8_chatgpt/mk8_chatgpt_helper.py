@@ -60,10 +60,13 @@ def execute_sql(processed_sql):
         print("query")
         result = connection.execute(query)
 
+        data_rows = []
+        headers = list(result.keys())
+
         for row in result:
-            print(row)
-            # break
-        return result
+            data_rows.append(row)
+            
+        return headers, data_rows
 
 
 # assistant_id="asst_86Ozc971ubLv1TE48XEfLwAd"
