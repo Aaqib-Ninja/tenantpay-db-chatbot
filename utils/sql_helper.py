@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import create_engine, text
 import sqlparse
+import pandas as pd
 
 class SQLUtils():
     def __init__(self):
@@ -23,6 +24,45 @@ class SQLUtils():
                 return result
         except:
             print("Hello execute_sql Exception")
+            return ""
+
+
+    def execute_sql_excel(self, processed_sql):
+        try:
+            with self.engine.connect() as connection:
+                query = text(processed_sql)
+                print("query")
+                result = connection.execute(query)
+
+                # for row in result:
+                #     print(row)
+                    # break
+                # return result
+
+                data_rows = []
+                headers = list(result.keys())
+
+                for row in result:
+                    data_rows.append(row)
+                    
+                return headers, data_rows
+        except:
+            print("Hello execute_sql Exception")
+            return [], []
+
+    def create_excel_file(self, headers, data):
+        output_file = "./query_outputs.xlsx"
+
+        table = [dict(zip(headers, row)) for row in data]
+
+        df = pd.DataFrame(table)
+        df = df.astype(str)
+        df.fillna("null", inplace=True)
+
+        df.to_excel(output_file, index=False)
+        return output_file
+
+
 
     def is_safe_select(self, sql_statement):
         if sql_statement is None or sql_statement.strip() == "":
