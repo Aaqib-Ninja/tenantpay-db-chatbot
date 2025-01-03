@@ -33,6 +33,14 @@ class OpenAIUtils():
         )
         return run
     
+    def format_input(self, input_text, bot_user_id):
+        full_bot_id = "<@" + bot_user_id + ">"
+        input_text = input_text.replace(full_bot_id, "")
+
+        msg = "Can me provide me an sql statement from the schemas uploaded in your files for the following question?\n"
+        msg += input_text
+        return msg
+    
     def extract_latest_response(self, thread_id):
         messages = self.client.beta.threads.messages.list(thread_id=thread_id)
         raw_gpt_output = messages.data[0].content[0].text.value
@@ -50,7 +58,7 @@ class OpenAIUtils():
 
 
 
-# assistant_id="asst_86Ozc971ubLv1TE48XEfLwAd"
+# assistant_id=os.getenv("OPENAI_ASSISTANT_ID")
 # thread_id = "thread_iRlqdnjJejbZ96CLGV5Ytx6F"
 # msg = "Can you fetch the imported bank transactions for the month of October?"
 

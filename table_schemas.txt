@@ -1,3 +1,192 @@
+@Entity('users', { schema: 'tp_live' })
+export class User {
+  @PrimaryGeneratedColumn({ type: 'bigint', name: 'userId', unsigned: true })
+  userId: string;
+
+  @Column('varchar', { name: 'firstName', length: 191 })
+  firstName: string;
+
+  @Column('varchar', { name: 'lastName', length: 191 })
+  lastName: string;
+
+  @Column('varchar', {
+    name: 'phoneNumberExtension',
+    nullable: true,
+    length: 5,
+  })
+  phoneNumberExtension: string | null;
+
+  @Column('varchar', { name: 'phoneNumber', nullable: true, length: 191 })
+  phoneNumber: string | null;
+
+  @Column('varchar', {
+    name: 'profilePicturePath',
+    nullable: true,
+    length: 256,
+  })
+  profilePicturePath: string | null;
+
+  @Column('varchar', { name: 'email', unique: true, length: 191 })
+  email: string;
+
+  @Column('varchar', {
+    name: 'userName',
+    nullable: true,
+    unique: true,
+    length: 191,
+  })
+  userName: string | null;
+
+  @Column('varchar', { name: 'password', length: 256, select: false })
+  password: string;
+
+  @Column('varchar', { name: 'accessToken', nullable: true, length: 512 })
+  accessToken: string | null;
+
+  @Column('varchar', { name: 'notificationEmail', nullable: true, length: 191 })
+  notificationEmail: string | null;
+
+  @Column('varchar', { name: 'langCode', length: 3, default: () => "'en'" })
+  langCode: string;
+
+  @Column('bigint', { name: 'tpUserId', nullable: true })
+  tpUserId: string | null;
+
+  @Column('bigint', { name: 'addressId', nullable: true })
+  addressId: string | null;
+
+  @Column('varchar', { name: 'title', length: 191, nullable: true })
+  title: string | null;
+
+  @Column('varchar', { name: 'linkedinUrl', length: 256, nullable: true })
+  linkedinUrl: string | null;
+
+  @Column('bigint', { name: 'addedByUserId', unsigned: true, nullable: true })
+  addedByUserId: string | null;
+
+  @Column('bigint', { name: 'updatedByUserId', unsigned: true, nullable: true })
+  updatedByUserId: string | null;
+
+  @Column('tinyint', { name: 'isSelfSignup', width: 1, default: () => "'0'" })
+  isSelfSignup: boolean;
+
+  @Column('tinyint', {
+    name: 'isEmailVerified',
+    width: 1,
+    default: () => "'0'",
+  })
+  isEmailVerified: boolean;
+
+  @Column('datetime', {
+    name: 'emailVerifiedAt',
+    nullable: true,
+  })
+  emailVerifiedAt: Date | null;
+
+  @Column('tinyint', { width: 1, default: () => "'0'" })
+  isPhoneVerified: boolean;
+
+  @Column('datetime', { nullable: true })
+  phoneVerifiedAt: Date | null;
+
+  /** Timestamp when last login by the user */
+  @Column()
+  timestampLastLogin: Date;
+
+  /** Timestamp when last MFA performed by the user */
+  @Column()
+  timestampLastMfa: Date;
+
+  @Column('date', { nullable: true })
+  dateOfBirth: string | null;
+
+  @Column('datetime', {
+    name: 'timestampAdded',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampAdded: Date;
+
+  @Column('datetime', {
+    name: 'timestampUpdated',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampUpdated: Date;
+
+  @Column('tinyint', { name: 'sendInvoice', width: 1, default: () => "'1'" })
+  sendInvoice: boolean;
+
+  @Column('tinyint', {
+    name: 'sendYardiEmail',
+    width: 1,
+    default: () => "'1'",
+  })
+  sendYardiEmail: boolean;
+
+  @Column('tinyint', {
+    name: 'isActive',
+    width: 1,
+    default: () => "'1'",
+  })
+  isActive: boolean;
+
+  @Column('datetime', {
+    name: 'timestampDeactivated',
+    nullable: true,
+  })
+  timestampDeactivated: Date | null;
+
+  @Column('bigint', {
+    name: 'deactivatedByUserId',
+    unsigned: true,
+    nullable: true,
+  })
+  deactivatedByUserId: string | null;
+
+  @OneToMany(
+    () => CompanyMetaData,
+    (companyMetaData) => companyMetaData.referedByUser,
+  )
+  companyMetaData: CompanyMetaData[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  hashPassword() {
+    if (this?.password) {
+      this.password = hashPassword(this.password);
+    }
+  }
+
+  @OneToOne(() => Address)
+  @JoinColumn({ name: 'addressId', referencedColumnName: 'addressId' })
+  address: Address;
+
+  @OneToOne(() => AccessControl)
+  @JoinColumn({ name: 'userId', referencedColumnName: 'userId' })
+  accessControl: AccessControl;
+
+  @OneToOne(() => Tenant, (tenant) => tenant.user)
+  tenant: Tenant;
+
+  @OneToMany(() => TenantBuilding, (tenantBuilding) => tenantBuilding.user)
+  tenantBuildings: TenantBuilding[];
+
+  @OneToMany(() => Resident, (resident) => resident.user)
+  residents: Resident[];
+
+  @OneToMany(
+    () => RiskAssessmentReport,
+    (riskAssessmentReport) => riskAssessmentReport.addedByUser,
+  )
+  riskAssessmentReports: RiskAssessmentReport[];
+
+  @OneToMany(() => AlertComment, (alertComment) => alertComment.user)
+  alertComments: AlertComment[];
+
+  @OneToMany(() => Alert, (alert) => alert.user)
+  alerts: Alert[];
+}
+
+
 @Entity('imported_bank_transactions', { schema: 'tp_live' })
 export class ImportedBankTransaction {
   @PrimaryGeneratedColumn({ type: 'bigint', name: 'id', unsigned: true })
@@ -591,195 +780,6 @@ export class Unit {
 }
 
 
-@Entity('users', { schema: 'tp_live' })
-export class User {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: 'userId', unsigned: true })
-  userId: string;
-
-  @Column('varchar', { name: 'firstName', length: 191 })
-  firstName: string;
-
-  @Column('varchar', { name: 'lastName', length: 191 })
-  lastName: string;
-
-  @Column('varchar', {
-    name: 'phoneNumberExtension',
-    nullable: true,
-    length: 5,
-  })
-  phoneNumberExtension: string | null;
-
-  @Column('varchar', { name: 'phoneNumber', nullable: true, length: 191 })
-  phoneNumber: string | null;
-
-  @Column('varchar', {
-    name: 'profilePicturePath',
-    nullable: true,
-    length: 256,
-  })
-  profilePicturePath: string | null;
-
-  @Column('varchar', { name: 'email', unique: true, length: 191 })
-  email: string;
-
-  @Column('varchar', {
-    name: 'userName',
-    nullable: true,
-    unique: true,
-    length: 191,
-  })
-  userName: string | null;
-
-  @Column('varchar', { name: 'password', length: 256, select: false })
-  password: string;
-
-  @Column('varchar', { name: 'accessToken', nullable: true, length: 512 })
-  accessToken: string | null;
-
-  @Column('varchar', { name: 'notificationEmail', nullable: true, length: 191 })
-  notificationEmail: string | null;
-
-  @Column('varchar', { name: 'langCode', length: 3, default: () => "'en'" })
-  langCode: string;
-
-  @Column('bigint', { name: 'tpUserId', nullable: true })
-  tpUserId: string | null;
-
-  @Column('bigint', { name: 'addressId', nullable: true })
-  addressId: string | null;
-
-  @Column('varchar', { name: 'title', length: 191, nullable: true })
-  title: string | null;
-
-  @Column('varchar', { name: 'linkedinUrl', length: 256, nullable: true })
-  linkedinUrl: string | null;
-
-  @Column('bigint', { name: 'addedByUserId', unsigned: true, nullable: true })
-  addedByUserId: string | null;
-
-  @Column('bigint', { name: 'updatedByUserId', unsigned: true, nullable: true })
-  updatedByUserId: string | null;
-
-  @Column('tinyint', { name: 'isSelfSignup', width: 1, default: () => "'0'" })
-  isSelfSignup: boolean;
-
-  @Column('tinyint', {
-    name: 'isEmailVerified',
-    width: 1,
-    default: () => "'0'",
-  })
-  isEmailVerified: boolean;
-
-  @Column('datetime', {
-    name: 'emailVerifiedAt',
-    nullable: true,
-  })
-  emailVerifiedAt: Date | null;
-
-  @Column('tinyint', { width: 1, default: () => "'0'" })
-  isPhoneVerified: boolean;
-
-  @Column('datetime', { nullable: true })
-  phoneVerifiedAt: Date | null;
-
-  /** Timestamp when last login by the user */
-  @Column()
-  timestampLastLogin: Date;
-
-  /** Timestamp when last MFA performed by the user */
-  @Column()
-  timestampLastMfa: Date;
-
-  @Column('date', { nullable: true })
-  dateOfBirth: string | null;
-
-  @Column('datetime', {
-    name: 'timestampAdded',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  timestampAdded: Date;
-
-  @Column('datetime', {
-    name: 'timestampUpdated',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  timestampUpdated: Date;
-
-  @Column('tinyint', { name: 'sendInvoice', width: 1, default: () => "'1'" })
-  sendInvoice: boolean;
-
-  @Column('tinyint', {
-    name: 'sendYardiEmail',
-    width: 1,
-    default: () => "'1'",
-  })
-  sendYardiEmail: boolean;
-
-  @Column('tinyint', {
-    name: 'isActive',
-    width: 1,
-    default: () => "'1'",
-  })
-  isActive: boolean;
-
-  @Column('datetime', {
-    name: 'timestampDeactivated',
-    nullable: true,
-  })
-  timestampDeactivated: Date | null;
-
-  @Column('bigint', {
-    name: 'deactivatedByUserId',
-    unsigned: true,
-    nullable: true,
-  })
-  deactivatedByUserId: string | null;
-
-  @OneToMany(
-    () => CompanyMetaData,
-    (companyMetaData) => companyMetaData.referedByUser,
-  )
-  companyMetaData: CompanyMetaData[];
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  hashPassword() {
-    if (this?.password) {
-      this.password = hashPassword(this.password);
-    }
-  }
-
-  @OneToOne(() => Address)
-  @JoinColumn({ name: 'addressId', referencedColumnName: 'addressId' })
-  address: Address;
-
-  @OneToOne(() => AccessControl)
-  @JoinColumn({ name: 'userId', referencedColumnName: 'userId' })
-  accessControl: AccessControl;
-
-  @OneToOne(() => Tenant, (tenant) => tenant.user)
-  tenant: Tenant;
-
-  @OneToMany(() => TenantBuilding, (tenantBuilding) => tenantBuilding.user)
-  tenantBuildings: TenantBuilding[];
-
-  @OneToMany(() => Resident, (resident) => resident.user)
-  residents: Resident[];
-
-  @OneToMany(
-    () => RiskAssessmentReport,
-    (riskAssessmentReport) => riskAssessmentReport.addedByUser,
-  )
-  riskAssessmentReports: RiskAssessmentReport[];
-
-  @OneToMany(() => AlertComment, (alertComment) => alertComment.user)
-  alertComments: AlertComment[];
-
-  @OneToMany(() => Alert, (alert) => alert.user)
-  alerts: Alert[];
-}
-
-
 @Entity('transactions', { schema: 'tp_live' })
 export class Transaction {
   @PrimaryGeneratedColumn({
@@ -897,4 +897,468 @@ export class Transaction {
   })
   @JoinColumn([{ name: 'batchId', referencedColumnName: 'batchId' }])
   batch: Batch;
+}
+
+
+@Entity('transaction_exceptions', { schema: 'tp_live' })
+export class TransactionException {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+    name: 'transactionExceptionId',
+    unsigned: true,
+  })
+  transactionExceptionId: string;
+
+  @Column('bigint', { name: 'companyId', nullable: true, unsigned: true })
+  companyId: string | number | null;
+
+  @Column('bigint', { name: 'bankAccountId', nullable: true, unsigned: true })
+  bankAccountId: string | number | null;
+
+  @Column('bigint', { name: 'buildingId', nullable: true, unsigned: true })
+  buildingId: string | number | null;
+
+  @Column('bigint', { name: 'residentId', nullable: true, unsigned: true })
+  residentId: string | number | null;
+
+  @Column('varchar', { name: 'payNumber', nullable: true, length: 191 })
+  payNumber: string | null;
+
+  @Column('bigint', { name: 'batchId', nullable: true, unsigned: true })
+  batchId: string | number | null;
+
+  @Column('varchar', { name: 'processorRefId', nullable: true, length: 512 })
+  processorRefId: string | null;
+
+  @Column('double', { name: 'amountPaid', precision: 8, scale: 3 })
+  amountPaid: number;
+
+  @Column('double', {
+    name: 'processingFee',
+    precision: 8,
+    scale: 3,
+    default: () => "'0.000'",
+  })
+  processingFee: number;
+
+  @Column('double', {
+    name: 'processingFeeTax',
+    precision: 8,
+    scale: 3,
+    default: () => "'0.000'",
+  })
+  processingFeeTax: number;
+
+  @Column('double', {
+    name: 'transferredAmount',
+    precision: 8,
+    scale: 3,
+    default: () => "'0.000'",
+  })
+  transferredAmount: number;
+
+  @Column('date', { name: 'transactionDate', nullable: true })
+  transactionDate: string | null;
+
+  @Column('date', { name: 'datePayeePaid', nullable: true })
+  datePayeePaid: string | null;
+
+  @Column('varchar', {
+    name: 'payeeFromTransaction',
+    nullable: true,
+    length: 200,
+  })
+  payeeFromTransaction: string | null;
+
+  @Column('bigint', { name: 'tpTransactionId', nullable: true, unique: true })
+  tpTransactionId: string | number | null;
+
+  @Column('int', { name: 'transactionStateId', nullable: true })
+  transactionStateId: number | null;
+
+  @Column('varchar', { name: 'note', nullable: true, length: 512 })
+  note: string | null;
+
+  @Column('double', { name: 'refundFee', precision: 22, default: () => "'0'" })
+  refundFee: number;
+
+  @Column('tinyint', { name: 'refunded', nullable: true, width: 1 })
+  refunded: boolean | null;
+
+  @Column('date', { name: 'refundedOn', nullable: true })
+  refundedOn: string | null;
+
+  @Column('varchar', { name: 'refundNote', nullable: true, length: 1000 })
+  refundNote: string | null;
+
+  @Column('tinyint', { name: 'removed', width: 1, default: () => "'0'" })
+  removed: boolean;
+
+  @Column('bigint', { name: 'updatedByUserId', unsigned: true, nullable: true })
+  updatedByUserId: string | null;
+
+  @Column('datetime', {
+    name: 'timestampAdded',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampAdded: Date;
+
+  @Column('datetime', {
+    name: 'timestampUpdated',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampUpdated: Date;
+
+  @Column('bigint', {
+    name: 'cardCompanyTypeId',
+    nullable: true,
+    unsigned: true,
+  })
+  cardCompanyTypeId: string | null;
+
+  @Column('bigint', {
+    name: 'paymentMethodId',
+    unsigned: true,
+    default: () => "'6'",
+  })
+  paymentMethodId: string;
+
+  @OneToMany(
+    () => ImportedBankTransaction,
+    (importedBankTransactions) => importedBankTransactions.transactionException,
+  )
+  importedBankTransactions: ImportedBankTransaction[];
+
+  @ManyToOne(() => Batch, (batches) => batches.transactionExceptions, {
+    onDelete: 'SET NULL',
+    onUpdate: 'SET NULL',
+  })
+  @JoinColumn([{ name: 'batchId', referencedColumnName: 'batchId' }])
+  batch: Batch;
+}
+
+
+@Entity('buildings', { schema: 'tp_live' })
+export class Building {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+    name: 'buildingId',
+    unsigned: true,
+  })
+  buildingId: string;
+
+  @Column('bigint', { name: 'companyId', unsigned: true })
+  companyId: string;
+
+  @Column('bigint', { name: 'bankAccountId', nullable: true, unsigned: true })
+  bankAccountId: string | null;
+
+  @Column('varchar', { name: 'name', length: 191 })
+  name: string;
+
+  @Column('varchar', { name: 'externalRefId', nullable: true, length: 191 })
+  externalRefId: string | null;
+
+  @Column('varchar', { name: 'description', nullable: true, length: 2000 })
+  description: string | null;
+
+  @Column('varchar', { name: 'unitNumber', nullable: true, length: 191 })
+  unitNumber: string | null;
+
+  @Column('varchar', { name: 'buildingNumber', nullable: true, length: 191 })
+  buildingNumber: string | null;
+
+  @Column('varchar', { name: 'streetName', nullable: true, length: 191 })
+  streetName: string | null;
+
+  @Column('varchar', { name: 'city', nullable: true, length: 191 })
+  city: string | null;
+
+  @Column('varchar', { name: 'province', nullable: true, length: 191 })
+  province: string | null;
+
+  @Column('varchar', { name: 'country', nullable: true, length: 191 })
+  country: string | null;
+
+  @Column('varchar', { name: 'postalCode', nullable: true, length: 191 })
+  postalCode: string | null;
+
+  @Column('varchar', { name: 'fullAddress', nullable: true, length: 1000 })
+  fullAddress: string | null;
+
+  @Column('bigint', { name: 'totalUnits', nullable: true })
+  totalUnits: string | null;
+
+  @Column('tinyint', { name: 'isActive', width: 1, default: () => "'1'" })
+  isActive: boolean;
+
+  @Column('bigint', { name: 'tpBuildingId', nullable: true, unique: true })
+  tpBuildingId: string | null;
+
+  @Column('tinyint', { name: 'removed', width: 1, default: () => "'0'" })
+  removed: boolean;
+
+  @Column('bigint', { name: 'addedByUserId', nullable: true, unsigned: true })
+  addedByUserId: string | null;
+
+  @Column('bigint', { name: 'updatedByUserId', nullable: true, unsigned: true })
+  updatedByUserId: string | null;
+
+  @Column('bigint', {
+    name: 'deactivatedByUserId',
+    nullable: true,
+    unsigned: true,
+  })
+  deactivatedByUserId: string | null;
+
+  @Column('bigint', { name: 'removedByUserId', nullable: true, unsigned: true })
+  removedByUserId: string | null;
+
+  @Column('datetime', {
+    name: 'timestampAdded',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampAdded: Date;
+
+  @Column('datetime', {
+    name: 'timestampUpdated',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampUpdated: Date;
+
+  @Column('datetime', { name: 'timestampRemoved', nullable: true })
+  timestampRemoved: Date | null;
+
+  @Column('datetime', { name: 'timestampDeactivated', nullable: true })
+  timestampDeactivated: Date | null;
+
+  @OneToMany(
+    () => ImportedBankTransaction,
+    (importedBankTransaction) => importedBankTransaction.building,
+  )
+  importedBankTransactions: ImportedBankTransaction[];
+
+  @OneToMany(
+    () => YardiTransactionPushLog,
+    (yardiTransactionPushLog) => yardiTransactionPushLog.building,
+  )
+  yardiTransactionPushLogs: YardiTransactionPushLog[];
+
+  @OneToMany(() => Resident, (resident) => resident.building)
+  residents: Resident[];
+
+  @OneToMany(() => Unit, (unit) => unit.building)
+  units: Unit[];
+
+  @ManyToOne(() => BankAccount, (bankAccounts) => bankAccounts.buildings, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([
+    { name: 'bankAccountId', referencedColumnName: 'bankAccountId' },
+  ])
+  bankAccount: BankAccount;
+
+  @OneToMany(() => AccessControl, (accessControl) => accessControl.building)
+  accessControls: AccessControl[];
+
+  @OneToOne(
+    () => YardiPropertyIntegration,
+    (yardiPropertyIntegration) => yardiPropertyIntegration.building,
+  )
+  yardiPropertyIntegration: YardiPropertyIntegration;
+}
+
+
+@Entity('bank_accounts', { schema: 'tp_live' })
+export class BankAccount {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+    name: 'bankAccountId',
+    unsigned: true,
+  })
+  bankAccountId: string;
+
+  @Column('bigint', { name: 'companyId', unsigned: true })
+  companyId: string;
+
+  @Column('varchar', { name: 'referenceId', length: 191 })
+  referenceId: string;
+
+  @Column('varchar', { name: 'hashId', length: 512 })
+  hashId: string;
+
+  @Column('varchar', { name: 'displayName', nullable: true, length: 191 })
+  displayName: string | null;
+
+  @Column('varchar', { name: 'accountName', length: 191 })
+  accountName: string;
+
+  @Column('varchar', { name: 'businessName', nullable: true, length: 191 })
+  businessName: string | null;
+
+  @Column('varchar', { name: 'firstName', nullable: true, length: 191 })
+  firstName: string | null;
+
+  @Column('varchar', { name: 'lastName', nullable: true, length: 191 })
+  lastName: string | null;
+
+  @Column('varchar', { name: 'phoneNumber', nullable: true, length: 191 })
+  phoneNumber: string | null;
+
+  @Column('varchar', { name: 'email', nullable: true, length: 191 })
+  email: string | null;
+
+  @Column('varchar', { name: 'transitNumber', length: 512 })
+  transitNumber: string;
+
+  @Column('varchar', { name: 'institutionNumber', length: 512 })
+  institutionNumber: string;
+
+  @Column('varchar', { name: 'accountNumber', length: 512 })
+  accountNumber: string;
+
+  @Column('bigint', { name: 'predecessorBankId', nullable: true })
+  predecessorBankId: string | null;
+
+  @Column('bigint', { name: 'successorBankId', nullable: true })
+  successorBankId: string | null;
+
+  @Column('varchar', { name: 'maskedString', nullable: true, length: 191 })
+  maskedString: string | null;
+
+  @Column('varchar', { name: 'bankName', length: 191 })
+  bankName: string;
+
+  @Column('varchar', {
+    name: 'currencyCode',
+    length: 5,
+    default: () => "'CAD'",
+  })
+  currencyCode: string;
+
+  @Column('bigint', { name: 'addressId', nullable: true })
+  addressId: string | null;
+
+  @Column()
+  status: BankAccountStatusEnum;
+
+  @Column('varchar', { name: 'note', nullable: true, length: 5000 })
+  note: string | null;
+
+  @Column('varchar', {
+    name: 'notificationEmails',
+    nullable: true,
+    length: 1000,
+  })
+  notificationEmails: string | null;
+
+  @Column('bigint', { name: 'tpAccountId', nullable: true, unique: true })
+  tpAccountId: string | null;
+
+  @Column('tinyint', { name: 'removed', width: 1, default: () => "'0'" })
+  removed: boolean;
+
+  @Column('tinyint', { name: 'isActive', width: 1, default: () => "'0'" })
+  isActive: boolean;
+
+  @Column('datetime', {
+    name: 'timestampAdded',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampAdded: Date;
+
+  @Column('datetime', {
+    name: 'timestampUpdated',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timestampUpdated: Date;
+
+  @Column('bigint', {
+    name: 'activatedByUserId',
+    nullable: true,
+    unsigned: true,
+  })
+  activatedByUserId: string | null;
+
+  @Column('bigint', { name: 'updatedByUserId', nullable: true, unsigned: true })
+  updatedByUserId: string | null;
+
+  @Column('bigint', { name: 'removedByUserId', nullable: true, unsigned: true })
+  removedByUserId: string | null;
+
+  @Column('datetime', { name: 'timestampActivated', nullable: true })
+  timestampActivated: Date | null;
+
+  @Column('bigint', {
+    name: 'deactivatedByUserId',
+    nullable: true,
+    unsigned: true,
+  })
+  deactivatedByUserId: string | null;
+
+  @Column('bigint', {
+    name: 'rejectedByUserId',
+    nullable: true,
+    unsigned: true,
+  })
+  rejectedByUserId: string | null;
+
+  @Column('datetime', { name: 'timestampDeactivated', nullable: true })
+  timestampDeactivated: Date | null;
+
+  @Column('datetime', { name: 'timestampRejected', nullable: true })
+  timestampRejected: Date | null;
+
+  @Column('datetime', { name: 'timestampRemoved', nullable: true })
+  timestampRemoved: Date | null;
+
+  @Column('bigint', {
+    name: 'addedByUserId',
+    nullable: true,
+    unsigned: true,
+  })
+  addedByUserId: string | null;
+
+  @Column('bigint', { name: 'thirdPartyDetailId', nullable: true })
+  thirdPartyDetailId: string | null;
+
+  @OneToOne(() => ThirdPartyDetail, { nullable: true })
+  @JoinColumn({
+    name: 'thirdPartyDetailId',
+    referencedColumnName: 'thirdPartyDetailId',
+  })
+  thirdPartyDetails: ThirdPartyDetail | null;
+
+  @OneToMany(
+    () => ImportedBankTransaction,
+    (importedBankTransactions) => importedBankTransactions.bankAccount,
+  )
+  importedBankTransactions: ImportedBankTransaction[];
+
+  @OneToMany(
+    () => ParsedTransactionData,
+    (parsedTransactionData) => parsedTransactionData.bankAccount,
+  )
+  parsedTransactionData: ParsedTransactionData[];
+
+  @OneToOne(() => Address, (address) => address.bankAccount)
+  @JoinColumn({ name: 'addressId' })
+  address: Address;
+
+  @OneToMany(() => Building, (building) => building.bankAccount)
+  buildings: Building[];
+
+  @ManyToOne(() => Company, (companies) => companies.bankAccounts, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
+  })
+  @JoinColumn([{ name: 'companyId', referencedColumnName: 'companyId' }])
+  company: Company;
+
+  @OneToMany(() => AccessControl, (accessControl) => accessControl.bankAccount)
+  accessControls: AccessControl[];
+
+  @OneToMany(() => Alert, (alert) => alert.bankAccount)
+  alerts: Alert[];
 }
